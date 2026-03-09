@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sipsy Project Dashboard</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f7f4f0;
+    color: #2d2d2d;
+    min-height: 100vh;
+    padding: 24px;
+  }
+
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1a1a1a;
+    letter-spacing: -0.5px;
+  }
+
+  header h1 span {
+    color: #e8855a;
+  }
+
+  .date-tag {
+    font-size: 13px;
+    color: #888;
+    background: white;
+    border: 1px solid #e0ddd9;
+    border-radius: 20px;
+    padding: 6px 14px;
+  }
+
+  .summary-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+  }
+
+  .summary-card {
+    background: white;
+    border-radius: 16px;
+    padding: 20px 24px;
+    flex: 1;
+    min-width: 140px;
+    border: 1px solid #ece9e4;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    text-align: center;
+  }
+
+  .summary-card .number {
+    font-size: 36px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .summary-card .label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #999;
+  }
+
+  .s-total .number { color: #2d2d2d; }
+  .s-high .number { color: #e05555; }
+  .s-inprogress .number { color: #e8a23a; }
+  .s-done .number { color: #4caf7d; }
+
+  .tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+
+  .tab {
+    padding: 9px 20px;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 2px solid transparent;
+    background: white;
+    color: #777;
+    border-color: #e0ddd9;
+    transition: all 0.15s;
+  }
+
+  .tab.active, .tab:hover {
+    background: #e8855a;
+    color: white;
+    border-color: #e8855a;
+  }
+
+  .board {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+  }
+
+  .column {
+    background: white;
+    border-radius: 18px;
+    border: 1px solid #ece9e4;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    overflow: hidden;
+  }
+
+  .column-header {
+    padding: 16px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #f0ede8;
+  }
+
+  .column-header.pending { background: #fdf6ee; color: #b07a30; }
+  .column-header.inprogress { background: #fff8ec; color: #c97f00; }
+  .column-header.done { background: #f0faf4; color: #2e7d52; }
+
+  .col-badge {
+    background: rgba(0,0,0,0.08);
+    border-radius: 10px;
+    padding: 2px 8px;
+    font-size: 12px;
+  }
+
+  .task-list { padding: 12px; }
+
+  .task {
+    background: #fafaf8;
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    border: 1px solid #eeebe6;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+  }
+
+  .task:hover { box-shadow: 0 2px 10px rgba(0,0,0,0.08); transform: translateY(-1px); }
+  .task:last-child { margin-bottom: 0; }
+
+  .task-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 6px;
+    padding-right: 24px;
+  }
+
+  .task-note {
+    font-size: 12px;
+    color: #888;
+    line-height: 1.5;
+  }
+
+  .task-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 10px;
+  }
+
+  .priority {
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 8px;
+    padding: 3px 8px;
+    letter-spacing: 0.3px;
+  }
+
+  .p-high { background: #fdeaea; color: #c0392b; }
+  .p-medium { background: #fef9e7; color: #b7860b; }
+  .p-low { background: #eaf4fb; color: #2471a3; }
+
+  .category-tag {
+    font-size: 11px;
+    color: #aaa;
+    background: #f0ede8;
+    border-radius: 6px;
+    padding: 2px 7px;
+  }
+
+  .cat-tech { background: #eef4ff; color: #4a6fa5; }
+  .cat-marketing { background: #fff0f6; color: #c2185b; }
+  .cat-instore { background: #f0fff4; color: #2e7d52; }
+  .cat-personal { background: #f3f0ff; color: #5e35b1; }
+
+  /* Modal */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: white;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 480px;
+    padding: 28px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+  }
+
+  .modal h2 { font-size: 18px; font-weight: 700; margin-bottom: 20px; }
+
+  .modal label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #555;
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  .modal input, .modal select, .modal textarea {
+    width: 100%;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 14px;
+    margin-bottom: 16px;
+    font-family: inherit;
+    outline: none;
+    transition: border 0.15s;
+    background: #fafaf8;
+  }
+
+  .modal input:focus, .modal select:focus, .modal textarea:focus {
+    border-color: #e8855a;
+    background: white;
+  }
+
+  .modal textarea { min-height: 80px; resize: vertical; }
+
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 8px;
+  }
+
+  .btn {
+    padding: 10px 22px;
+    border-radius: 10px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-primary { background: #e8855a; color: white; }
+  .btn-primary:hover { background: #d4704a; }
+  .btn-secondary { background: #f0ede8; color: #555; }
+  .btn-secondary:hover { background: #e5e0d8; }
+  .btn-danger { background: #fdeaea; color: #c0392b; }
+  .btn-danger:hover { background: #f5c6c6; }
+
+  .add-btn {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: #e8855a;
+    color: white;
+    font-size: 26px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(232,133,90,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    z-index: 50;
+  }
+
+  .add-btn:hover { transform: scale(1.08); background: #d4704a; }
+
+  .empty-col {
+    padding: 24px 16px;
+    text-align: center;
+    color: #ccc;
+    font-size: 13px;
+  }
+
+  .task-detail-modal .detail-section { margin-bottom: 16px; }
+  .task-detail-modal .detail-label { font-size: 12px; font-weight: 600; text-transform: uppercase; color: #aaa; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .task-detail-modal .detail-value { font-size: 15px; color: #2d2d2d; }
+
+  .status-change { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+  .status-btn {
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: 2px solid transparent;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .status-btn.pending { background: #fdf6ee; color: #b07a30; border-color: #f0d9b5; }
+  .status-btn.inprogress { background: #fff8ec; color: #c97f00; border-color: #fce4a0; }
+  .status-btn.done { background: #f0faf4; color: #2e7d52; border-color: #a8e6c3; }
+  .status-btn.active-status { opacity: 0.5; cursor: default; }
+
+  @media (max-width: 600px) {
+    body { padding: 16px; }
+    .board { grid-template-columns: 1fr; }
+    header h1 { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>✨ <span>Sipsy</span> Projects</h1>
+  <div class="date-tag" id="dateTag"></div>
+</header>
+
+<div class="summary-row">
+  <div class="summary-card s-total"><div class="number" id="totalCount">0</div><div class="label">Total Tasks</div></div>
+  <div class="summary-card s-high"><div class="number" id="highCount">0</div><div class="label">High Priority</div></div>
+  <div class="summary-card s-inprogress"><div class="number" id="inprogressCount">0</div><div class="label">In Progress</div></div>
+  <div class="summary-card s-done"><div class="number" id="doneCount">0</div><div class="label">Done ✓</div></div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="filterCat('all')">All</div>
+  <div class="tab" onclick="filterCat('tech')">🛠 Tech / Shopify</div>
+  <div class="tab" onclick="filterCat('marketing')">📣 Marketing</div>
+  <div class="tab" onclick="filterCat('instore')">🏪 In-Store</div>
+  <div class="tab" onclick="filterCat('personal')">👤 Personal</div>
+</div>
+
+<div class="board" id="board"></div>
+
+<button class="add-btn" onclick="openAddModal()">+</button>
+
+<!-- Add Task Modal -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal">
+    <h2>New Task</h2>
+    <label>Task Name</label>
+    <input type="text" id="newTitle" placeholder="What needs to get done?" />
+    <label>Notes</label>
+    <textarea id="newNote" placeholder="Any details..."></textarea>
+    <label>Category</label>
+    <select id="newCat">
+      <option value="tech">🛠 Tech / Shopify</option>
+      <option value="marketing">📣 Marketing</option>
+      <option value="instore">🏪 In-Store</option>
+      <option value="personal">👤 Personal</option>
+    </select>
+    <label>Priority</label>
+    <select id="newPriority">
+      <option value="high">🔴 High</option>
+      <option value="medium">🟡 Medium</option>
+      <option value="low">🟢 Low</option>
+    </select>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('addModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="addTask()">Add Task</button>
+    </div>
+  </div>
+</div>
+
+<!-- Task Detail Modal -->
+<div class="modal-overlay task-detail-modal" id="detailModal">
+  <div class="modal">
+    <h2 id="detailTitle"></h2>
+    <div class="detail-section">
+      <div class="detail-label">Notes</div>
+      <div class="detail-value" id="detailNote" style="color:#555;font-size:14px;line-height:1.6;"></div>
+    </div>
+    <div class="detail-section">
+      <div class="detail-label">Status</div>
+      <div class="status-change" id="statusBtns"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-danger" onclick="deleteTask()">Delete</button>
+      <button class="btn btn-secondary" onclick="closeModal('detailModal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'sipsy_projects_v1';
+let currentFilter = 'all';
+let activeTaskId = null;
+
+const defaultTasks = [
+  // Tech
+  { id: 1, title: 'Free shipping threshold setup', note: 'Set threshold at $100–$125. Show dynamic "Add $X more for free shipping" bar in cart.', cat: 'tech', priority: 'high', status: 'pending' },
+  { id: 2, title: 'Abandoned cart email recovery', note: '3-email sequence via Klaviyo/Shopify. 100% email capture rate — ~$60K/month untapped.', cat: 'tech', priority: 'high', status: 'pending' },
+  { id: 3, title: 'Evergreen gift collections', note: 'Create: Birthday, Wedding, Corporate, Anniversary, "Just Because" collections.', cat: 'tech', priority: 'high', status: 'pending' },
+  { id: 4, title: 'Gift finder quiz', note: 'Octane AI or similar. Budget → Occasion → Spirit preference → curated recommendation.', cat: 'tech', priority: 'medium', status: 'pending' },
+  { id: 5, title: 'Loyalty program activation', note: 'Smile.io — make points visible on product pages & cart. Add milestone notification at checkout.', cat: 'tech', priority: 'medium', status: 'pending' },
+  { id: 6, title: 'Trust signals at checkout', note: 'Add reviews (Yotpo), delivery guarantee, "Why Sipsy?" callouts, real delivery times.', cat: 'tech', priority: 'medium', status: 'pending' },
+  { id: 7, title: 'Google Analytics deep dive', note: 'Need GA4 API access or reports from Hala. Funnel drop-off, mobile vs desktop, traffic sources.', cat: 'tech', priority: 'medium', status: 'pending' },
+  { id: 8, title: 'Revoke old developer access', note: 'Remove faisal@spaceraceinteractive.com from Shopify staff.', cat: 'tech', priority: 'medium', status: 'pending' },
+  // Marketing
+  { id: 9, title: 'Instagram/TikTok content ideas', note: '20 ideas drafted. Filming today — see ideas doc.', cat: 'marketing', priority: 'high', status: 'inprogress' },
+  { id: 10, title: 'Year-round gifting campaign strategy', note: 'Tie into evergreen gift collections. National Tequila Day, Valentine\'s, Mother\'s Day, Father\'s Day.', cat: 'marketing', priority: 'high', status: 'pending' },
+  { id: 11, title: 'Loyalty reactivation email', note: 'Re-engage ~30K dormant customers. "You have X points waiting."', cat: 'marketing', priority: 'medium', status: 'pending' },
+  { id: 12, title: 'VIP customer program', note: 'Top spenders ($500+/year). White-glove: early access to allocations, free gift wrap, personal notes.', cat: 'marketing', priority: 'medium', status: 'pending' },
+  { id: 13, title: 'Instagram/TikTok account audit', note: 'Once screenshots reviewed.', cat: 'marketing', priority: 'low', status: 'pending' },
+  { id: 14, title: 'Paid ads strategy', note: 'After organic content is dialed in.', cat: 'marketing', priority: 'low', status: 'pending' },
+  // In-Store
+  { id: 15, title: '3 new location openings', note: 'Strategy TBD. Total 6 LA locations planned.', cat: 'instore', priority: 'high', status: 'pending' },
+  { id: 16, title: 'Loyalty program in-store integration', note: 'Connect online + in-store Smile.io.', cat: 'instore', priority: 'medium', status: 'pending' },
+  { id: 17, title: 'In-store event / tasting strategy', note: 'Sephora-of-alcohol culture building. Community events, brand nights.', cat: 'instore', priority: 'low', status: 'pending' },
+];
+
+function loadTasks() {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved) return JSON.parse(saved);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultTasks));
+  return defaultTasks;
+}
+
+function saveTasks(tasks) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+}
+
+function filterCat(cat) {
+  currentFilter = cat;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  render();
+}
+
+function render() {
+  const tasks = loadTasks();
+  const filtered = currentFilter === 'all' ? tasks : tasks.filter(t => t.cat === currentFilter);
+
+  // Summaries
+  document.getElementById('totalCount').textContent = tasks.length;
+  document.getElementById('highCount').textContent = tasks.filter(t => t.priority === 'high' && t.status !== 'done').length;
+  document.getElementById('inprogressCount').textContent = tasks.filter(t => t.status === 'inprogress').length;
+  document.getElementById('doneCount').textContent = tasks.filter(t => t.status === 'done').length;
+
+  const statuses = ['inprogress', 'pending', 'done'];
+  const statusLabels = { pending: '⏳ Pending', inprogress: '🔄 In Progress', done: '✅ Done' };
+
+  const board = document.getElementById('board');
+  board.innerHTML = '';
+
+  statuses.forEach(status => {
+    const col = document.createElement('div');
+    col.className = 'column';
+    const colTasks = filtered.filter(t => t.status === status);
+
+    col.innerHTML = `
+      <div class="column-header ${status}">
+        <span>${statusLabels[status]}</span>
+        <span class="col-badge">${colTasks.length}</span>
+      </div>
+      <div class="task-list" id="col-${status}"></div>
+    `;
+    board.appendChild(col);
+
+    const list = col.querySelector(`#col-${status}`);
+    if (colTasks.length === 0) {
+      list.innerHTML = '<div class="empty-col">Nothing here yet</div>';
+    } else {
+      colTasks.forEach(task => {
+        const el = document.createElement('div');
+        el.className = 'task';
+        el.onclick = () => openDetail(task.id);
+        const catLabels = { tech: 'Tech', marketing: 'Marketing', instore: 'In-Store', personal: 'Personal' };
+        const prioLabel = { high: 'High', medium: 'Medium', low: 'Low' };
+        el.innerHTML = `
+          <div class="task-title">${task.title}</div>
+          ${task.note ? `<div class="task-note">${task.note.substring(0, 80)}${task.note.length > 80 ? '…' : ''}</div>` : ''}
+          <div class="task-footer">
+            <span class="priority p-${task.priority}">${prioLabel[task.priority]}</span>
+            <span class="category-tag cat-${task.cat}">${catLabels[task.cat]}</span>
+          </div>
+        `;
+        list.appendChild(el);
+      });
+    }
+  });
+}
+
+function openDetail(id) {
+  const tasks = loadTasks();
+  const task = tasks.find(t => t.id === id);
+  activeTaskId = id;
+  document.getElementById('detailTitle').textContent = task.title;
+  document.getElementById('detailNote').textContent = task.note || 'No notes.';
+  const statusBtns = document.getElementById('statusBtns');
+  statusBtns.innerHTML = '';
+  ['pending', 'inprogress', 'done'].forEach(s => {
+    const labels = { pending: '⏳ Pending', inprogress: '🔄 In Progress', done: '✅ Done' };
+    const btn = document.createElement('button');
+    btn.className = `status-btn ${s} ${task.status === s ? 'active-status' : ''}`;
+    btn.textContent = labels[s];
+    if (task.status !== s) {
+      btn.onclick = () => changeStatus(id, s);
+    }
+    statusBtns.appendChild(btn);
+  });
+  document.getElementById('detailModal').classList.add('open');
+}
+
+function changeStatus(id, newStatus) {
+  const tasks = loadTasks();
+  const task = tasks.find(t => t.id === id);
+  task.status = newStatus;
+  saveTasks(tasks);
+  closeModal('detailModal');
+  render();
+}
+
+function deleteTask() {
+  if (!confirm('Delete this task?')) return;
+  let tasks = loadTasks();
+  tasks = tasks.filter(t => t.id !== activeTaskId);
+  saveTasks(tasks);
+  closeModal('detailModal');
+  render();
+}
+
+function openAddModal() {
+  document.getElementById('newTitle').value = '';
+  document.getElementById('newNote').value = '';
+  document.getElementById('addModal').classList.add('open');
+}
+
+function addTask() {
+  const title = document.getElementById('newTitle').value.trim();
+  if (!title) { alert('Please enter a task name.'); return; }
+  const tasks = loadTasks();
+  const newId = Math.max(...tasks.map(t => t.id), 0) + 1;
+  tasks.push({
+    id: newId,
+    title,
+    note: document.getElementById('newNote').value.trim(),
+    cat: document.getElementById('newCat').value,
+    priority: document.getElementById('newPriority').value,
+    status: 'pending'
+  });
+  saveTasks(tasks);
+  closeModal('addModal');
+  render();
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+// Close modal on overlay click
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) overlay.classList.remove('open');
+  });
+});
+
+// Date
+const d = new Date();
+document.getElementById('dateTag').textContent = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+
+render();
+</script>
+</body>
+</html>
