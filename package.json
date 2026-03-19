@@ -1,0 +1,19 @@
+json
+{
+  "name": "sipsy-recovery-api",
+  "version": "1.0.0",
+  "description": "Sipsy Cart Recovery - Dynamic Discount Code Assignment",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5"
+  },
+  "engines": {
+    "node": "18.x"
+  }
+}
+
