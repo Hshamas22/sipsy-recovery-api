@@ -189,9 +189,16 @@ app.post('/api/update-preferences', async (req, res) => {
       });
     }
 
-    // Shopify API credentials
-    const SHOPIFY_STORE = process.env.SHOPIFY_STORE || 'by0iv9-hr';
-    const SHOPIFY_TOKEN = process.env.SHOPIFY_TOKEN || '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';
+    // Shopify API credentials (from environment variables)
+    const SHOPIFY_STORE = process.env.SHOPIFY_STORE;
+    const SHOPIFY_TOKEN = process.env.SHOPIFY_TOKEN;
+
+    if (!SHOPIFY_STORE || !SHOPIFY_TOKEN) {
+      return res.status(500).json({ 
+        error: 'Shopify credentials not configured in environment variables',
+        required: ['SHOPIFY_STORE', 'SHOPIFY_TOKEN']
+      });
+    }
 
     // Step 1: Find customer by email
     const searchUrl = `https://${SHOPIFY_STORE}.myshopify.com/admin/api/2024-01/customers/search.json?query=email:${encodeURIComponent(email)}`;
