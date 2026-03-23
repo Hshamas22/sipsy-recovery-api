@@ -315,11 +315,39 @@ Hala's feedback: Stop explaining constraints, start delivering solutions.
 
 ---
 
+## Code Inventory Monitoring System (NEW - March 23)
+
+**Status:** ✅ Active & Automated
+
+**System:** Checks code inventory every 3 days, auto-generates more if running low
+
+**How it works:**
+- `check-code-inventory.js` script monitors `/api/stats` endpoint
+- Threshold: Alert if < 100 codes available
+- If low: Auto-generates 300 new signup codes + commits to GitHub + deploys via Railway
+- Cart/Checkout codes monitored but require manual generation if needed
+
+**Current Inventory:**
+- Cart Recovery: 51 unique codes (48h expiration)
+- Checkout Recovery: 12 unique codes (48h expiration)
+- Signup Welcome: 300+ unique codes (7-day expiration)
+- Preferences Email: 1 shared code (THANKYOU5) - used once per customer
+
+**Setup:**
+- Cron job every 3 days: `openclaw cron --schedule "0 0 */3 * *" --task "node check-code-inventory.js"`
+- Manual check: `node check-code-inventory.js`
+- Stats API: `GET https://sipsy-recovery-api-production.up.railway.app/api/stats`
+
+**Documentation:** `CODE_INVENTORY_SYSTEM.md`
+
+---
+
 ## Notes
 - Hala is building/running Sipsy (e-commerce/marketing)
 - We're working together on technical improvements, marketing content, and personal projects
 - Single project tracker is critical for staying organized
 - Using Notion for full automation (Google banned service account)
+- Code inventory is now automatically monitored to prevent running out
 
 ## Customer Preference Collection System (COMPLETE - READY TO SEND ✅)
 **Status:** 🚀 Fully deployed & brand-ready - launch-ready
