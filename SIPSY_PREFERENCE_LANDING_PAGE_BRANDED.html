@@ -97,8 +97,13 @@
       <div class="success-message" id="successMessage">
         <div class="success-icon">✅</div>
         <h2>Perfect!</h2>
-        <p>Check your email for your <strong>$5 credit</strong>. We've saved your preferences and sent you a special code!</p>
-        <p style="margin-top: 20px; font-size: 13px; color: #999;">Redirecting you to Sipsy...</p>
+        <p style="margin-bottom: 20px;">Your $5 discount code:</p>
+        <div class="code-display">
+          <span class="code-text">THANKYOU5</span>
+          <button type="button" class="copy-btn" onclick="copyCode()">Copy</button>
+        </div>
+        <p style="margin-top: 25px; font-size: 13px; color: #999;">Valid for one use • Expires April 19, 2026</p>
+        <a href="https://sipsy.com" class="btn btn-shop" style="margin-top: 25px; text-decoration: none; display: inline-block;">Shop Now</a>
       </div>
     </form>
   </div>
@@ -143,21 +148,22 @@
 }
 
 .preferences-subtitle {
-  color: #021739;
-  font-size: 15px;
+  color: #00FFD2;
+  font-size: 16px;
   line-height: 1.8;
   margin-bottom: 30px;
   text-align: center;
-  background-color: #f0fffd;
-  border: 2px solid #00FFD2;
+  background-color: #021739;
+  border: 3px solid #00FFD2;
   border-radius: 8px;
-  padding: 15px;
-  font-weight: 500;
+  padding: 18px;
+  font-weight: 600;
 }
 
 .preferences-subtitle strong {
   color: #00FFD2;
-  font-size: 16px;
+  font-size: 20px;
+  font-weight: 700;
 }
 
 .form-group {
@@ -252,6 +258,52 @@
   margin: 10px 0;
 }
 
+.code-display {
+  background-color: #f5f5f5;
+  border: 2px solid #00FFD2;
+  border-radius: 8px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.code-text {
+  font-size: 28px;
+  font-weight: 700;
+  color: #021739;
+  letter-spacing: 2px;
+  flex: 1;
+  text-align: center;
+}
+
+.copy-btn {
+  background-color: #00FFD2;
+  color: #021739;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 16px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.copy-btn:hover {
+  background-color: #00E6B8;
+}
+
+.btn-shop {
+  background-color: #00FFD2;
+  color: #021739;
+  padding: 14px 30px;
+  font-weight: 600;
+  border-radius: 6px;
+}
+
 .error-message {
   display: none;
   background-color: #ffe0e0;
@@ -336,10 +388,6 @@ document.getElementById('preferencesForm').addEventListener('submit', async (e) 
     document.getElementById('loading').style.display = 'none';
     document.getElementById('successMessage').style.display = 'block';
 
-    setTimeout(() => {
-      window.location.href = 'https://sipsy.com';
-    }, 3000);
-
   } catch (error) {
     console.error('Error:', error);
     document.getElementById('loading').style.display = 'none';
@@ -352,6 +400,18 @@ function showError(message) {
   const errorEl = document.getElementById('errorMessage');
   errorEl.textContent = message;
   errorEl.style.display = 'block';
+}
+
+function copyCode() {
+  const code = 'THANKYOU5';
+  navigator.clipboard.writeText(code).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    const originalText = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(() => {
+      btn.textContent = originalText;
+    }, 2000);
+  });
 }
 
 if (!email) {
