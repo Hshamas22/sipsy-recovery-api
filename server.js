@@ -342,44 +342,12 @@ app.post('/api/update-preferences', async (req, res) => {
 
     const updateData = await updateResponse.json();
 
-    // Step 4: Send email with discount code
-    const emailUrl = `https://${SHOPIFY_STORE}.myshopify.com/admin/api/2024-01/customers/${customerId}/send_email_invite.json`;
-    
-    const emailBody = `
-Hi ${customer.first_name || 'there'},
-
-Thank you for telling us what you love! We've saved your preferences and can't wait to send you updates about what matters to you.
-
-As a thank you, here's your exclusive $5 off code:
-
-**THANKYOU5**
-
-Use this code at checkout to get $5 off your next order. Valid for 1 month.
-
-Happy shopping!
-Sipsy Team
-    `.trim();
-
-    const emailResponse = await fetch(emailUrl, {
-      method: 'POST',
-      headers: {
-        'X-Shopify-Access-Token': SHOPIFY_TOKEN,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        customer_invite: {
-          custom_message: emailBody
-        }
-      })
-    });
-
-    if (!emailResponse.ok) {
-      console.warn(`Email send failed: ${emailResponse.statusText}. Continuing anyway.`);
-    }
+    // Email is now sent via Shopify Workflow (triggered by Preference-Collected tag)
+    // No longer sending email from API
 
     return res.status(200).json({
       success: true,
-      message: 'Preferences saved, customer tagged, and email sent',
+      message: 'Preferences saved and customer tagged. Shopify workflow will send thank you email.',
       customer: {
         id: customerId,
         email: email,
@@ -388,6 +356,7 @@ Sipsy Team
       },
       interests: interests,
       discountCode: 'THANKYOU5',
+      emailVia: 'Shopify Workflow (triggered by Preference-Collected tag)',
       timestamp: new Date().toISOString()
     });
 
