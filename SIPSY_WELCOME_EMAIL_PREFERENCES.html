@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sipsy - Your Preferences</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background-color: #f5f5f5;
+    }
+    .email-container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #ffffff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    .header {
+      background: linear-gradient(135deg, #021739 0%, #001a2e 100%);
+      padding: 40px 30px;
+      text-align: center;
+      color: #00FFD2;
+    }
+    .header h1 {
+      font-size: 28px;
+      margin-bottom: 8px;
+      color: #ffffff;
+    }
+    .header p {
+      font-size: 14px;
+      color: #00FFD2;
+    }
+    .content {
+      padding: 40px 30px;
+    }
+    .greeting {
+      font-size: 16px;
+      margin-bottom: 20px;
+      color: #333;
+    }
+    .greeting strong {
+      color: #021739;
+    }
+    .main-text {
+      font-size: 15px;
+      line-height: 1.8;
+      margin-bottom: 30px;
+      color: #555;
+    }
+    .cta-section {
+      background-color: #f9f9f9;
+      border-left: 4px solid #00FFD2;
+      padding: 20px;
+      margin-bottom: 30px;
+      border-radius: 4px;
+    }
+    .cta-section p {
+      font-size: 14px;
+      color: #555;
+      margin-bottom: 12px;
+    }
+    .cta-button {
+      display: inline-block;
+      background-color: #00FFD2;
+      color: #021739;
+      padding: 12px 28px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.2s ease;
+    }
+    .cta-button:hover {
+      background-color: #00E6B8;
+      text-decoration: none;
+    }
+    .benefits {
+      margin-bottom: 30px;
+    }
+    .benefits-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #021739;
+      margin-bottom: 15px;
+    }
+    .benefit-item {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 12px;
+      font-size: 14px;
+      color: #555;
+    }
+    .benefit-icon {
+      margin-right: 10px;
+      color: #00FFD2;
+      font-weight: bold;
+    }
+    .footer {
+      background-color: #f9f9f9;
+      padding: 30px;
+      text-align: center;
+      font-size: 12px;
+      color: #999;
+      border-top: 1px solid #e0e0e0;
+    }
+    .footer a {
+      color: #00FFD2;
+      text-decoration: none;
+    }
+    .divider {
+      height: 1px;
+      background-color: #e0e0e0;
+      margin: 30px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="email-container">
+    <!-- Header -->
+    <div class="header">
+      <h1>Sipsy</h1>
+      <p>Welcome to our spirits community ✨</p>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+      <p class="greeting">Hi <strong>{{customer.first_name}}</strong>,</p>
+
+      <p class="main-text">
+        We're excited to have you here! To make sure you get recommendations and content that match your taste, we'd love to learn a bit about your spirit preferences.
+      </p>
+
+      <div class="cta-section">
+        <p>Take 60 seconds to tell us what you love:</p>
+        <a href="https://sipsy.com/pages/preferences-welcome?email={{customer.email}}" class="cta-button">Tell Us Your Preferences →</a>
+      </div>
+
+      <div class="benefits">
+        <p class="benefits-title">Here's what we'll do with your preferences:</p>
+        <div class="benefit-item">
+          <span class="benefit-icon">✨</span>
+          <span>Personalized product recommendations based on your taste</span>
+        </div>
+        <div class="benefit-item">
+          <span class="benefit-icon">🎯</span>
+          <span>Early access to releases that match what you love</span>
+        </div>
+        <div class="benefit-item">
+          <span class="benefit-icon">💬</span>
+          <span>Content and tips tailored to your interests (cocktails, education, deals, etc.)</span>
+        </div>
+      </div>
+
+      <p class="main-text">
+        No spam, no nonsense — just emails about spirits you'll actually want to hear about.
+      </p>
+
+      <div class="divider"></div>
+
+      <p style="font-size: 13px; color: #999; margin-bottom: 0;">
+        Not interested? You can update your preferences anytime or unsubscribe with a single click.
+      </p>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <p style="margin-bottom: 8px;">Sipsy Spirits</p>
+      <p style="margin-bottom: 0; font-size: 11px;">
+        Questions? <a href="https://sipsy.com/contact">Get in touch →</a>
+      </p>
+    </div>
+  </div>
+</body>
+</html>

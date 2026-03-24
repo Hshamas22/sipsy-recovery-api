@@ -1,0 +1,365 @@
+<div class="preferences-container">
+  <div class="preferences-inner">
+    <div class="preferences-header">
+      <h1>Your Sipsy Preferences</h1>
+      <p>Let's get to know you ✨</p>
+    </div>
+
+    <div class="preferences-subtitle">
+      <strong>📌 Select ALL that apply!</strong><br>
+      Help us recommend the perfect bottles just for you.
+    </div>
+
+    <div class="error-message" id="errorMessage"></div>
+
+    <form id="preferencesForm">
+      <div id="formContent">
+        <div class="form-group">
+          <label class="checkbox-group">
+            <input type="checkbox" name="interests" value="new-products">
+            <span class="checkbox-label"><span class="emoji">🆕</span>New Products</span>
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label class="checkbox-group">
+            <input type="checkbox" name="interests" value="sales">
+            <span class="checkbox-label"><span class="emoji">🏷️</span>Sales & Special Offers</span>
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label class="checkbox-group">
+            <input type="checkbox" name="interests" value="tequila">
+            <span class="checkbox-label"><span class="emoji">🌵</span>Tequila</span>
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label class="checkbox-group">
+            <input type="checkbox" name="interests" value="whiskey">
+            <span class="checkbox-label"><span class="emoji">🥃</span>Whiskey</span>
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label class="checkbox-group">
+            <input type="checkbox" name="interests" value="wine">
+            <span class="checkbox-label"><span class="emoji">🍷</span>Wine</span>
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label class="checkbox-group">
+            <input type="checkbox" name="interests" value="champagne">
+            <span class="checkbox-label"><span class="emoji">🍾</span>Champagne</span>
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label class="checkbox-group">
+            <input type="checkbox" name="interests" value="sustainable">
+            <span class="checkbox-label"><span class="emoji">♻️</span>Sustainable Products</span>
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label class="checkbox-group">
+            <input type="checkbox" name="interests" value="additive-free">
+            <span class="checkbox-label"><span class="emoji">🌿</span>Additive-Free Spirits</span>
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label class="checkbox-group">
+            <input type="checkbox" name="interests" value="non-alcoholic">
+            <span class="checkbox-label"><span class="emoji">🥤</span>Non-Alcoholic Options</span>
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label class="checkbox-group">
+            <input type="checkbox" name="interests" value="cocktail-recipes">
+            <span class="checkbox-label"><span class="emoji">🍹</span>Cocktail Recipes</span>
+          </label>
+        </div>
+
+        <div class="button-group">
+          <button type="submit" class="btn btn-submit">✅ Save My Preferences</button>
+        </div>
+      </div>
+
+      <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p>Saving your preferences...</p>
+      </div>
+
+      <div class="success-message" id="successMessage">
+        <div class="success-icon">✅</div>
+        <h2>Thanks!</h2>
+        <p>We've saved your preferences and will send you personalized recommendations.</p>
+        <a href="https://sipsy.com" class="btn btn-shop" style="margin-top: 25px; text-decoration: none; display: inline-block;">Continue to Sipsy</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<style>
+.preferences-container {
+  padding: 40px 20px;
+  background: #021739;
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.preferences-inner {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 40px;
+  max-width: 500px;
+  width: 100%;
+  box-shadow: 0 10px 40px rgba(0, 255, 210, 0.2);
+}
+
+.preferences-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.preferences-header h1 {
+  color: #021739;
+  font-size: 28px;
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+.preferences-header p {
+  color: #00FFD2;
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.preferences-subtitle {
+  color: #00FFD2;
+  font-size: 16px;
+  line-height: 1.8;
+  margin-bottom: 30px;
+  text-align: center;
+  background-color: #021739;
+  border: 3px solid #00FFD2;
+  border-radius: 8px;
+  padding: 18px;
+  font-weight: 600;
+}
+
+.preferences-subtitle strong {
+  color: #00FFD2;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.checkbox-group:hover {
+  background-color: #f9f9f9;
+  border-color: #00FFD2;
+}
+
+.checkbox-group input[type="checkbox"] {
+  margin-right: 12px;
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #00FFD2;
+  flex-shrink: 0;
+}
+
+.checkbox-label {
+  flex: 1;
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+  font-weight: 500;
+  margin: 0;
+}
+
+.emoji {
+  margin-right: 8px;
+  font-size: 16px;
+}
+
+.button-group {
+  display: flex;
+  gap: 10px;
+  margin-top: 30px;
+}
+
+.btn {
+  flex: 1;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-submit {
+  background-color: #00FFD2;
+  color: #021739;
+}
+
+.btn-submit:hover {
+  background-color: #00E6B8;
+  transform: translateY(-2px);
+}
+
+.success-message {
+  display: none;
+  text-align: center;
+  padding: 40px 0;
+  color: #021739;
+}
+
+.success-icon {
+  font-size: 60px;
+  margin-bottom: 20px;
+}
+
+.success-message h2 {
+  font-size: 24px;
+  margin-bottom: 10px;
+  color: #00FFD2;
+  margin-top: 0;
+}
+
+.success-message p {
+  margin: 10px 0;
+}
+
+.btn-shop {
+  background-color: #00FFD2;
+  color: #021739;
+  padding: 14px 30px;
+  font-weight: 600;
+  border-radius: 6px;
+}
+
+.error-message {
+  display: none;
+  background-color: #ffe0e0;
+  color: #c80000;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  font-size: 13px;
+}
+
+.loading {
+  display: none;
+  text-align: center;
+}
+
+.spinner {
+  border: 3px solid #f0f0f0;
+  border-top: 3px solid #00FFD2;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@media (max-width: 600px) {
+  .preferences-inner {
+    padding: 30px 20px;
+  }
+  
+  .preferences-header h1 {
+    font-size: 24px;
+  }
+}
+</style>
+
+<script>
+const urlParams = new URLSearchParams(window.location.search);
+const email = urlParams.get('email');
+
+document.getElementById('preferencesForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  if (!email) {
+    showError('Email not found. Please try again from the email link.');
+    return;
+  }
+
+  const selectedInterests = Array.from(document.querySelectorAll('input[name="interests"]:checked'))
+    .map(cb => cb.value);
+
+  if (selectedInterests.length === 0) {
+    showError('Please select at least one interest.');
+    return;
+  }
+
+  document.getElementById('formContent').style.display = 'none';
+  document.getElementById('loading').style.display = 'block';
+
+  try {
+    const response = await fetch('https://sipsy-recovery-api-production.up.railway.app/api/update-preferences', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        email: email,
+        interests: selectedInterests
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to save preferences');
+    }
+
+    document.getElementById('formContent').style.display = 'none';
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('successMessage').style.display = 'block';
+
+  } catch (error) {
+    console.error('Error:', error);
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('formContent').style.display = 'block';
+    showError('Something went wrong. Please try again.');
+  }
+});
+
+function showError(message) {
+  const errorEl = document.getElementById('errorMessage');
+  errorEl.textContent = message;
+  errorEl.style.display = 'block';
+}
+
+if (!email) {
+  showError('Email not found. Please click the link in your email.');
+}
+</script>
