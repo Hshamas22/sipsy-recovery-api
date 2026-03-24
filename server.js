@@ -108,14 +108,21 @@ let codeUsage = {};
  */
 app.get('/api/assign-code', async (req, res) => {
   try {
-    const { email, type = 'email2' } = req.query;
+    let { email, type = 'email2' } = req.query;
 
     if (!email) {
       return res.status(400).json({ error: 'Email parameter required' });
     }
 
+    // Normalize type: map checkout_email2/3 to email2/3
+    if (type === 'checkout_email2') {
+      type = 'email2';
+    } else if (type === 'checkout_email3') {
+      type = 'email3';
+    }
+
     if (type !== 'email2' && type !== 'email3' && type !== 'signup') {
-      return res.status(400).json({ error: 'Type must be email2, email3, or signup' });
+      return res.status(400).json({ error: 'Type must be email2, email3, checkout_email2, checkout_email3, or signup' });
     }
 
     const key = `${email}_${type}`;
