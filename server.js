@@ -250,6 +250,14 @@ app.get('/api/stats', async (req, res) => {
 });
 
 /**
+ * GET /health
+ * Health check endpoint for Shopify app verification
+ */
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok', message: 'Sipsy Recovery API is running' });
+});
+
+/**
  * POST /api/update-preferences
  * Update customer preferences and apply Shopify tags
  */
