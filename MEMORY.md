@@ -462,3 +462,63 @@ Hala's feedback: Stop explaining constraints, start delivering solutions.
 ### Next Step
 Send email campaign to "Never Purchased" segment to start collecting preferences (expected: 1,000-2,000 new profiles within first month)
 
+---
+
+## WELCOME SERIES - PREFERENCE COLLECTION (March 24, 2026) ✅
+
+### System Redesign: Simplified UX
+**Changed:** Removed Shopify Workflow email trigger → Show code directly on success page
+
+**Reason:** 
+- 18 customers successfully tagged with "Preference-Collected" (tag working ✅)
+- Shopify Workflow condition wasn't matching (complexity)
+- Simpler solution: Display discount code on success page instead
+
+### Two-Tier Preference System Now In Place
+
+**1. Promo Version (Abandoned Cart Recovery)**
+- **File:** `SIPSY_PREFERENCE_LANDING_PAGE_BRANDED.html`
+- **URL:** `/pages/let-us-know-what-you-like`
+- **Success:** Shows THANKYOU5 code + Copy button + Shop Now CTA
+- **Use case:** Recovery campaigns (cart/checkout abandoned)
+- **Code display:** "Your $5 discount code: THANKYOU5"
+
+**2. Welcome Series Version (New Signups)**
+- **File:** `SIPSY_PREFERENCE_LANDING_PAGE_WELCOME.html`
+- **URL:** `/pages/preferences-welcome`
+- **Success:** Just "Thanks! We'll send personalized recommendations"
+- **No discount code shown** (preserve codes for re-engagement)
+- **Use case:** Welcome sequence (day 1-2 after signup)
+
+### Welcome Email Template
+**File:** `SIPSY_WELCOME_EMAIL_PREFERENCES_V2.html`
+**Status:** ✅ Ready to deploy
+
+**Design:**
+- ✅ Visual preference cards (8 options in 2x4 grid with emojis)
+- ✅ Poppins font (Ambit alternative)
+- ✅ Midnight blue (#021739) for all text
+- ✅ Bigger fonts: 16px body, 18px greeting, 15px buttons
+- ✅ Email variables: `{{customer.first_name}}`, `{{customer.email}}`
+- ✅ Link: `https://sipsy.com/pages/preferences-welcome?email={{customer.email}}`
+
+**Preference Options Shown:**
+- Tequila 🌵, Whiskey 🥃, Wine 🍷, Champagne 🍾
+- New Products 🆕, Sales & Deals 🏷️, Sustainable ♻️, Cocktail Recipes 🍹
+
+**Benefits Section:**
+- Personalized recommendations based on YOUR taste ✨
+- Early access to new releases you'll love 🎯
+- Content tailored to your interests only 💬
+
+### Deployment Next Steps
+1. Create Shopify page `/pages/preferences-welcome` (paste welcome landing page HTML)
+2. Add welcome email template to email marketing platform (day 1-2 after signup)
+3. Test end-to-end: signup → email → form → preferences saved → tagged
+
+### Strategic Notes
+- **Code distribution:** Promo codes only for recovery campaigns (higher urgency)
+- **Welcome series:** Focus on personalization benefit (no discount pressure)
+- **Visual design:** Preference cards in email make options clear without clicking
+- **Segmentation:** Now have separate flows for acquisition vs. recovery
+
