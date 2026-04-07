@@ -109,5 +109,81 @@ app.get('/api/stats', (req, res) => {
     }
   });
 });
+/**
+ * POST /api/generate-codes
+ * Dynamically generates and adds new codes to a batch
+ * Called by weekly cron job to keep inventory fresh
+ * Body: { type: 'email2'|'email3'|'signup', count: 30 }
+ */
+app.post('/api/generate-codes', async (req, res) => {
+  try {
+    const { type = 'email2', count = 30 } = req.body;
+
+    if (!['email2', 'email3', 'signup'].includes(type)) {
+      return res.status(400).json({ 
+        error: 'Type must be email2, email3, or signup' 
+      });
+    }
+
+    if (count < 1 || count > 300) {
+      return res.status(400).json({ 
+        error: 'Count must be between 1 and 300' 
+      });
+    }
+
+    function randomCode() {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+      let code = '';
+      for (let i = 0; i < 8; i++) {
+        code += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return 'SIPSY5-' + code;
+    }
+
+    let batch;
+    if (type === 'email2') {
+      batch = EMAIL2_CODES;
+    } else if (type === 'email3') {
+      batch = EMAIL3_CODES;
+    } else {
+      batch = SIGNUP_CODES;
+    }
+
+    const newCodes = [];
+    const existingCodes = new Set(batch);
+
+    for (let i = 0; i < count; i++) {
+      let code;
+      let attempts = 0;
+      
+      do {
+        code = randomCode();
+        attempts++;
+      } while (existingCodes.has(code) && attempts < 10);
+
+      if (!existingCodes.has(code)) {
+        batch.push(code);
+        existingCodes.add(code);
+        newCodes.push(code);
+      }
+    }
+
+    return res.status(201).json({
+      success: true,
+      type: type,
+      codesGenerated: newCodes.length,
+      totalInBatch: batch.length,
+      message: `Generated ${newCodes.length} new codes for ${type} batch`,
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('Error generating codes:', error);
+    return res.status(500).json({ 
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
 
 app.listen(PORT, () => console.log(`API running on ${PORT}`));
