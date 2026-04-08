@@ -50,6 +50,7 @@ async function createDiscountInShopify(code) {
           value_type: 'percentage',
           value: -5.0,
           usage_limit: 1,
+          customer_selection: 'all',
           starts_at: new Date().toISOString()
         }
       },
@@ -82,7 +83,7 @@ async function createDiscountInShopify(code) {
     return { success: true, priceRuleId, code };
   } catch (error) {
     console.error(`❌ Failed to create discount code ${code}:`, error.response?.data || error.message);
-    return { success: false, code, error: error.message };
+    return { success: false, code, error: error.response?.data || error.message };
   }
 }
 
