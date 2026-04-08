@@ -1,8 +1,13 @@
 const express = require('express');
 const cors = require('cors');
+const axios = require('axios');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+const SHOPIFY_STORE = process.env.SHOPIFY_STORE || 'by0iv9-hr';
+const SHOPIFY_TOKEN = process.env.SHOPIFY_TOKEN;
+if (!SHOPIFY_TOKEN) throw new Error('SHOPIFY_TOKEN environment variable is required');
 
 app.use(cors());
 app.use(express.json());
@@ -29,6 +34,55 @@ function getExpirationTime(type) {
     return 7 * 24 * 60 * 60 * 1000;
   } else {
     return 48 * 60 * 60 * 1000;
+  }
+}
+
+async function createDiscountInShopify(code) {
+  try {
+    const priceRuleResponse = await axios.post(
+      `https://${SHOPIFY_STORE}.myshopify.com/admin/api/2024-01/price_rules.json`,
+      {
+        price_rule: {
+          title: code,
+          target_type: 'line_item',
+          target_selection: 'all',
+          allocation_method: 'across',
+          value_type: 'percentage',
+          value: -5.0,
+          usage_limit: 1,
+          starts_at: new Date().toISOString()
+        }
+      },
+      {
+        headers: {
+          'X-Shopify-Access-Token': SHOPIFY_TOKEN,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    const priceRuleId = priceRuleResponse.data.price_rule.id;
+
+    const discountCodeResponse = await axios.post(
+      `https://${SHOPIFY_STORE}.myshopify.com/admin/api/2024-01/price_rules/${priceRuleId}/discount_codes.json`,
+      {
+        discount_code: {
+          code: code
+        }
+      },
+      {
+        headers: {
+          'X-Shopify-Access-Token': SHOPIFY_TOKEN,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    console.log(`✅ Created discount code in Shopify: ${code}`);
+    return { success: true, priceRuleId, code };
+  } catch (error) {
+    console.error(`❌ Failed to create discount code ${code}:`, error.response?.data || error.message);
+    return { success: false, code, error: error.message };
   }
 }
 
@@ -146,6 +200,7 @@ app.post('/api/generate-codes', async (req, res) => {
 
     const newCodes = [];
     const existingCodes = new Set(batch);
+    const shopifyResults = [];
 
     for (let i = 0; i < count; i++) {
       let code;
@@ -160,21 +215,81 @@ app.post('/api/generate-codes', async (req, res) => {
         batch.push(code);
         existingCodes.add(code);
         newCodes.push(code);
+
+        // Create in Shopify
+        const shopifyResult = await createDiscountInShopify(code);
+        shopifyResults.push(shopifyResult);
       }
     }
+
+    const shopifySuccess = shopifyResults.filter(r => r.success).length;
+    const shopifyFailed = shopifyResults.filter(r => !r.success).length;
 
     return res.status(201).json({
       success: true,
       type: type,
       codesGenerated: newCodes.length,
       totalInBatch: batch.length,
-      message: `Generated ${newCodes.length} new codes for ${type} batch`,
+      shopify: {
+        created: shopifySuccess,
+        failed: shopifyFailed
+      },
+      message: `Generated ${newCodes.length} new codes for ${type} batch (${shopifySuccess} created in Shopify, ${shopifyFailed} failed)`,
       timestamp: new Date().toISOString()
     });
 
   } catch (error) {
     console.error('Error generating codes:', error);
     return res.status(500).json({ 
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+// New endpoint to retroactively create all existing codes in Shopify
+app.post('/api/sync-all-codes-to-shopify', async (req, res) => {
+  try {
+    const allBatches = [
+      { codes: EMAIL2_CODES, type: 'email2' },
+      { codes: EMAIL3_CODES, type: 'email3' },
+      { codes: CHECKOUT_EMAIL2_CODES, type: 'checkout_email2' },
+      { codes: CHECKOUT_EMAIL3_CODES, type: 'checkout_email3' },
+      { codes: SIGNUP_CODES, type: 'signup' }
+    ];
+
+    let totalCreated = 0;
+    let totalFailed = 0;
+    const failedCodes = [];
+
+    for (const batch of allBatches) {
+      console.log(`\nSyncing ${batch.codes.length} codes for type: ${batch.type}`);
+      
+      for (const code of batch.codes) {
+        const result = await createDiscountInShopify(code);
+        if (result.success) {
+          totalCreated++;
+        } else {
+          totalFailed++;
+          failedCodes.push({ code, error: result.error });
+        }
+        // Rate limit: 1 request per 100ms
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: `Synced all codes to Shopify`,
+      totalCreated,
+      totalFailed,
+      failedCodes: failedCodes.slice(0, 10), // Show first 10 failures
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('Error syncing codes:', error);
+    return res.status(500).json({
       error: error.message,
       timestamp: new Date().toISOString()
     });
