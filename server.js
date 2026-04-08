@@ -275,7 +275,7 @@ app.post('/api/sync-all-codes-to-shopify', async (req, res) => {
           failedCodes.push({ code, error: result.error });
         }
         // Rate limit: 1 request per 100ms
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise(resolve => setTimeout(resolve, 500));
       }
     }
 
