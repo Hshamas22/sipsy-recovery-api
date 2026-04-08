@@ -87,6 +87,44 @@ async function createDiscountInShopify(code) {
   }
 }
 
+async function deleteDiscountFromShopify(code) {
+  try {
+    // First, search for the price rule with this code
+    const priceRulesResponse = await axios.get(
+      `https://${SHOPIFY_STORE}.myshopify.com/admin/api/2024-01/price_rules.json?title=${encodeURIComponent(code)}`,
+      {
+        headers: {
+          'X-Shopify-Access-Token': SHOPIFY_TOKEN,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    if (!priceRulesResponse.data.price_rules || priceRulesResponse.data.price_rules.length === 0) {
+      return { success: false, code, error: 'Price rule not found' };
+    }
+
+    const priceRuleId = priceRulesResponse.data.price_rules[0].id;
+
+    // Delete the price rule (this also deletes associated discount codes)
+    await axios.delete(
+      `https://${SHOPIFY_STORE}.myshopify.com/admin/api/2024-01/price_rules/${priceRuleId}.json`,
+      {
+        headers: {
+          'X-Shopify-Access-Token': SHOPIFY_TOKEN,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    console.log(`✅ Deleted discount code from Shopify: ${code}`);
+    return { success: true, code };
+  } catch (error) {
+    console.error(`❌ Failed to delete discount code ${code}:`, error.response?.data || error.message);
+    return { success: false, code, error: error.response?.data || error.message };
+  }
+}
+
 app.get('/', (req, res) => {
   res.json({ status: 'ok', service: 'Sipsy Cart Recovery API' });
 });
@@ -290,6 +328,47 @@ app.post('/api/sync-all-codes-to-shopify', async (req, res) => {
 
   } catch (error) {
     console.error('Error syncing codes:', error);
+    return res.status(500).json({
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+// Delete specific codes from Shopify
+app.post('/api/delete-codes', async (req, res) => {
+  try {
+    const { codes = [] } = req.body;
+
+    if (!codes || !Array.isArray(codes) || codes.length === 0) {
+      return res.status(400).json({ 
+        error: 'codes array required' 
+      });
+    }
+
+    const results = [];
+
+    for (const code of codes) {
+      const result = await deleteDiscountFromShopify(code);
+      results.push(result);
+      // Rate limit: 500ms between requests
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
+
+    const successCount = results.filter(r => r.success).length;
+    const failCount = results.filter(r => !r.success).length;
+
+    return res.status(200).json({
+      success: true,
+      message: `Deleted ${successCount} codes from Shopify (${failCount} failed)`,
+      deleted: successCount,
+      failed: failCount,
+      details: results.filter(r => !r.success).slice(0, 5), // Show first 5 failures
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('Error deleting codes:', error);
     return res.status(500).json({
       error: error.message,
       timestamp: new Date().toISOString()
