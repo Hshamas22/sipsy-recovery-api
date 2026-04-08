@@ -109,12 +109,7 @@ app.get('/api/stats', (req, res) => {
     }
   });
 });
-/**
- * POST /api/generate-codes
- * Dynamically generates and adds new codes to a batch
- * Called by weekly cron job to keep inventory fresh
- * Body: { type: 'email2'|'email3'|'signup', count: 30 }
- */
+
 app.post('/api/generate-codes', async (req, res) => {
   try {
     const { type = 'email2', count = 30 } = req.body;
