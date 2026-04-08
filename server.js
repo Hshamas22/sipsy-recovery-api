@@ -1,173 +1,138 @@
-/**
- * Express Server for Sipsy Cart Recovery + Preference System
- * Deploy to Railway
- */
-
 const express = require('express');
 const cors = require('cors');
-require('dotenv').config();
 
 const app = express();
+const PORT = process.env.PORT || 3000;
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 
-// Code batches
-const EMAIL2_CODES = [
-  'SIPSY5-BB12AD', 'SIPSY5-007DA4', 'SIPSY5-96E7A9', 'SIPSY5-9B81CF', 
-  'SIPSY5-FE4D8A', 'SIPSY5-A2D8F4', 'SIPSY5-C5E1B2', 'SIPSY5-D7F9E3',
-  'SIPSY5-E8A1F2', 'SIPSY5-F3B4C1', 'SIPSY5-G2C5D3', 'SIPSY5-H4D6E2',
-  'SIPSY5-I5E7F1', 'SIPSY5-J6F8A0', 'SIPSY5-K7G9B1', 'SIPSY5-L8H0C2',
-  'SIPSY5-M9I1D3', 'SIPSY5-N0J2E4', 'SIPSY5-O1K3F5', 'SIPSY5-P2L4G6',
-  'SIPSY5-Q3M5H7', 'SIPSY5-R4N6I8', 'SIPSY5-S5O7J9', 'SIPSY5-T6P8K0',
-  'SIPSY5-U7Q9L1', 'SIPSY5-V8R0M2', 'SIPSY5-W9S1N3', 'SIPSY5-X0T2O4',
-  'SIPSY5-Y1U3P5', 'SIPSY5-Z2V4Q6', 'SIPSY5-A3W5R7', 'SIPSY5-B4X6S8',
-  'SIPSY5-C5Y7T9', 'SIPSY5-D6Z8U0', 'SIPSY5-E7A1V1', 'SIPSY5-F8B2W2',
-  'SIPSY5-G9C3X3', 'SIPSY5-H0D4Y4', 'SIPSY5-I1E5Z5', 'SIPSY5-J2F6A6',
-  'SIPSY5-K3G7B7', 'SIPSY5-L4H8C8', 'SIPSY5-M5I9D9', 'SIPSY5-N6J0E0',
-  'SIPSY5-O7K1F1', 'SIPSY5-P8L2G2', 'SIPSY5-Q9M3H3', 'SIPSY5-R0N4I4',
-  // New batch (March 26)
-  'SIPSY5-B8J1WO', 'SIPSY5-RF3MXG', 'SIPSY5-1TX29W', 'SIPSY5-94PGN8', 'SIPSY5-YUWT6C', 'SIPSY5-W49ZKS', 'SIPSY5-B9W5ZW', 'SIPSY5-4X3HVT',
-  'SIPSY5-RUJT8P', 'SIPSY5-RLO8KX', 'SIPSY5-63LCUQ', 'SIPSY5-Z7NNF9', 'SIPSY5-BLIQHR', 'SIPSY5-TXWWRG', 'SIPSY5-6YIZC5', 'SIPSY5-J8E8KY',
-  'SIPSY5-HLMV68', 'SIPSY5-2O8HB3', 'SIPSY5-YXQIW4', 'SIPSY5-LP1JKB', 'SIPSY5-5ATRIF', 'SIPSY5-Z0LLDL', 'SIPSY5-SGH2GT', 'SIPSY5-AUE59T',
-  'SIPSY5-5C72GG', 'SIPSY5-905TBX', 'SIPSY5-00PWLY', 'SIPSY5-H8EGOU', 'SIPSY5-JIO8W4', 'SIPSY5-52KQFK', 'SIPSY5-OHB7BE', 'SIPSY5-AMTRD1',
-  'SIPSY5-IRE4X8', 'SIPSY5-V3MNUF', 'SIPSY5-94678O', 'SIPSY5-KU4H73', 'SIPSY5-9J1UCN', 'SIPSY5-F4QW6I', 'SIPSY5-M5MU72', 'SIPSY5-HQT4T9',
-  'SIPSY5-R8Q7ZY', 'SIPSY5-WJOGBG', 'SIPSY5-A0NU0C', 'SIPSY5-JAZCDA', 'SIPSY5-MO25AL', 'SIPSY5-9X2U2R', 'SIPSY5-6I0NYR', 'SIPSY5-RJMZKV',
-  'SIPSY5-YLIA9E', 'SIPSY5-WE9I46', 'SIPSY5-EJBUST', 'SIPSY5-1AMCKL', 'SIPSY5-Q490OJ', 'SIPSY5-K5GVS5', 'SIPSY5-URJXR9', 'SIPSY5-0N67G6',
-  'SIPSY5-KSD8I8', 'SIPSY5-I4UBWY', 'SIPSY5-B38FAW', 'SIPSY5-JDUKWM', 'SIPSY5-1O0764', 'SIPSY5-N77DBQ', 'SIPSY5-6CU55I', 'SIPSY5-WE4OYU',
-  'SIPSY5-TA8FDU', 'SIPSY5-T6VCL1', 'SIPSY5-ESO85X', 'SIPSY5-3933EZ', 'SIPSY5-ES991K', 'SIPSY5-3JTX6V', 'SIPSY5-GKLZ9N', 'SIPSY5-X22SMF',
-  'SIPSY5-1S6EBG', 'SIPSY5-1IWGYC', 'SIPSY5-S9IPEI', 'SIPSY5-KBPWJI', 'SIPSY5-P7YIP9', 'SIPSY5-XP0X54', 'SIPSY5-YJ6Z3W', 'SIPSY5-N4NXDO',
-  'SIPSY5-FRDW8F', 'SIPSY5-YIQVY1', 'SIPSY5-GMXFY6', 'SIPSY5-3EHPMC', 'SIPSY5-26YX8G', 'SIPSY5-9OWQ8X', 'SIPSY5-YTVLIB', 'SIPSY5-YJZDUR',
-  'SIPSY5-4TYDY3', 'SIPSY5-IVT86X', 'SIPSY5-GRX66P', 'SIPSY5-L19F5O', 'SIPSY5-SQO2YF', 'SIPSY5-KER1SN', 'SIPSY5-WH6TVI', 'SIPSY5-T0RC1T',
-  'SIPSY5-MDS1J3', 'SIPSY5-Q4UXJ3', 'SIPSY5-I7VMWU', 'SIPSY5-CH060A'
-];
+// ABANDONED CART - Email 2
+const EMAIL2_CODES = ['SIPSY5-BB12AD','SIPSY5-007DA4','SIPSY5-96E7A9','SIPSY5-9B81CF','SIPSY5-FE4D8A','SIPSY5-A2D8F4','SIPSY5-C5E1B2','SIPSY5-D7F9E3','SIPSY5-E8A1F2','SIPSY5-F3B4C1','SIPSY5-G2C5D3','SIPSY5-H4D6E2','SIPSY5-I5E7F1','SIPSY5-J6F8A0','SIPSY5-K7G9B1','SIPSY5-L8H0C2','SIPSY5-M9I1D3','SIPSY5-N0J2E4','SIPSY5-O1K3F5','SIPSY5-P2L4G6','SIPSY5-Q3M5H7','SIPSY5-R4N6I8','SIPSY5-S5O7J9','SIPSY5-T6P8K0','SIPSY5-U7Q9L1','SIPSY5-V8R0M2','SIPSY5-W9S1N3','SIPSY5-X0T2O4','SIPSY5-Y1U3P5','SIPSY5-Z2V4Q6','SIPSY5-A3W5R7','SIPSY5-B4X6S8','SIPSY5-C5Y7T9','SIPSY5-D6Z8U0','SIPSY5-E7A1V1','SIPSY5-F8B2W2','SIPSY5-G9C3X3','SIPSY5-H0D4Y4','SIPSY5-I1E5Z5','SIPSY5-J2F6A6','SIPSY5-K3G7B7','SIPSY5-L4H8C8','SIPSY5-M5I9D9','SIPSY5-N6J0E0','SIPSY5-O7K1F1','SIPSY5-P8L2G2','SIPSY5-Q9M3H3','SIPSY5-R0N4I4'];
 
-const EMAIL3_CODES = [
-  'SIPSY5-S1O5J5', 'SIPSY5-T2P6K6', 'SIPSY5-U3Q7L7', 'SIPSY5-V4R8M8',
-  'SIPSY5-W5S9N9', 'SIPSY5-X6T0O0', 'SIPSY5-Y7U1P1', 'SIPSY5-Z8V2Q2',
-  'SIPSY5-A9W3R3', 'SIPSY5-B0X4S4', 'SIPSY5-C1Y5T5', 'SIPSY5-D2Z6U6',
-  // New batch (March 26)
-  'SIPSY5-RW1SUN', 'SIPSY5-OL9JOO', 'SIPSY5-ALJNH5', 'SIPSY5-PC2VB8', 'SIPSY5-OK1IHM', 'SIPSY5-042AGB', 'SIPSY5-WBKDEI', 'SIPSY5-XN8EQG',
-  'SIPSY5-FWK2YE', 'SIPSY5-4QDMP9', 'SIPSY5-IUQ19G', 'SIPSY5-OCTFTF', 'SIPSY5-9Z3NVS', 'SIPSY5-20DU4S', 'SIPSY5-KN7AQT', 'SIPSY5-40CQCS',
-  'SIPSY5-NJCRGM', 'SIPSY5-BGIE4B', 'SIPSY5-9J28XO', 'SIPSY5-T261X6', 'SIPSY5-2OYSRC', 'SIPSY5-UBLZAD', 'SIPSY5-DO68RQ', 'SIPSY5-4L9JN4',
-  'SIPSY5-DUQI7B', 'SIPSY5-V5SG69', 'SIPSY5-6X4XA7', 'SIPSY5-M2O8N7', 'SIPSY5-RLV536', 'SIPSY5-QTOSPP', 'SIPSY5-P377QH', 'SIPSY5-KR9E0M',
-  'SIPSY5-G7W85T', 'SIPSY5-XN2B3Y', 'SIPSY5-SY3IX2', 'SIPSY5-WY2RJW', 'SIPSY5-J97YKP', 'SIPSY5-00BH2B', 'SIPSY5-2RAQ2F', 'SIPSY5-8ZXNEC',
-  'SIPSY5-NV2FF3', 'SIPSY5-BEZKZ7', 'SIPSY5-NY56DG', 'SIPSY5-006P9X', 'SIPSY5-LCWMZM', 'SIPSY5-CM1XWB', 'SIPSY5-XIHN5J', 'SIPSY5-9F0DCV',
-  'SIPSY5-YVKD6W', 'SIPSY5-899K1Y', 'SIPSY5-J2CF62', 'SIPSY5-VUC9DO', 'SIPSY5-PLUA9P', 'SIPSY5-E9QCMN', 'SIPSY5-OPADUB', 'SIPSY5-2LBQJW',
-  'SIPSY5-X3IJ0V', 'SIPSY5-O8K7HD', 'SIPSY5-1X7Y4D', 'SIPSY5-RIQSN7', 'SIPSY5-9V36H5', 'SIPSY5-FKSCOB', 'SIPSY5-8Z1Y0W', 'SIPSY5-ZT8L9K',
-  'SIPSY5-YHUXDO', 'SIPSY5-1B43GY', 'SIPSY5-U29H9U', 'SIPSY5-BSGI6T', 'SIPSY5-WCBU2W', 'SIPSY5-1I6L6M', 'SIPSY5-SX39Q0', 'SIPSY5-ZBX6Z0',
-  'SIPSY5-LSGKV4', 'SIPSY5-1AQ3FQ', 'SIPSY5-E61LKE', 'SIPSY5-8EI933', 'SIPSY5-5AQ86A', 'SIPSY5-0X6B2C', 'SIPSY5-409NIS', 'SIPSY5-BD3WRQ',
-  'SIPSY5-M8SGVS', 'SIPSY5-T4V0F2', 'SIPSY5-YI1JQK', 'SIPSY5-BSRPLZ', 'SIPSY5-PMBIM0', 'SIPSY5-DCD2XN', 'SIPSY5-OXGBB0', 'SIPSY5-2OCUTG',
-  'SIPSY5-C8T05J', 'SIPSY5-D3SFZL', 'SIPSY5-74KYHU', 'SIPSY5-Z5DCCJ', 'SIPSY5-PPHJV0', 'SIPSY5-2NJW6T', 'SIPSY5-IR1F5A', 'SIPSY5-8AFR39',
-  'SIPSY5-CIBTHZ', 'SIPSY5-HXNVBP', 'SIPSY5-U8MXWP', 'SIPSY5-MB5QKD'
-];
+const EMAIL3_CODES = ['SIPSY5-S1O5J5','SIPSY5-T2P6K6','SIPSY5-U3Q7L7','SIPSY5-V4R8M8','SIPSY5-W5S9N9','SIPSY5-X6T0O0','SIPSY5-Y7U1P1','SIPSY5-Z8V2Q2','SIPSY5-A9W3R3','SIPSY5-B0X4S4','SIPSY5-C1Y5T5','SIPSY5-D2Z6U6'];
 
-// Email signup welcome codes (300 unique codes, 7-day expiration)
-const SIGNUP_CODES = [
-  'WELCOME5-001', 'WELCOME5-002', 'WELCOME5-003', 'WELCOME5-004', 'WELCOME5-005',
-  'WELCOME5-006', 'WELCOME5-007', 'WELCOME5-008', 'WELCOME5-009', 'WELCOME5-010',
-  'WELCOME5-011', 'WELCOME5-012', 'WELCOME5-013', 'WELCOME5-014', 'WELCOME5-015',
-  'WELCOME5-016', 'WELCOME5-017', 'WELCOME5-018', 'WELCOME5-019', 'WELCOME5-020',
-  'WELCOME5-021', 'WELCOME5-022', 'WELCOME5-023', 'WELCOME5-024', 'WELCOME5-025',
-  'WELCOME5-026', 'WELCOME5-027', 'WELCOME5-028', 'WELCOME5-029', 'WELCOME5-030',
-  'WELCOME5-031', 'WELCOME5-032', 'WELCOME5-033', 'WELCOME5-034', 'WELCOME5-035',
-  'WELCOME5-036', 'WELCOME5-037', 'WELCOME5-038', 'WELCOME5-039', 'WELCOME5-040',
-  'WELCOME5-041', 'WELCOME5-042', 'WELCOME5-043', 'WELCOME5-044', 'WELCOME5-045',
-  'WELCOME5-046', 'WELCOME5-047', 'WELCOME5-048', 'WELCOME5-049', 'WELCOME5-050',
-  'WELCOME5-051', 'WELCOME5-052', 'WELCOME5-053', 'WELCOME5-054', 'WELCOME5-055',
-  'WELCOME5-056', 'WELCOME5-057', 'WELCOME5-058', 'WELCOME5-059', 'WELCOME5-060',
-  'WELCOME5-061', 'WELCOME5-062', 'WELCOME5-063', 'WELCOME5-064', 'WELCOME5-065',
-  'WELCOME5-066', 'WELCOME5-067', 'WELCOME5-068', 'WELCOME5-069', 'WELCOME5-070',
-  'WELCOME5-071', 'WELCOME5-072', 'WELCOME5-073', 'WELCOME5-074', 'WELCOME5-075',
-  'WELCOME5-076', 'WELCOME5-077', 'WELCOME5-078', 'WELCOME5-079', 'WELCOME5-080',
-  'WELCOME5-081', 'WELCOME5-082', 'WELCOME5-083', 'WELCOME5-084', 'WELCOME5-085',
-  'WELCOME5-086', 'WELCOME5-087', 'WELCOME5-088', 'WELCOME5-089', 'WELCOME5-090',
-  'WELCOME5-091', 'WELCOME5-092', 'WELCOME5-093', 'WELCOME5-094', 'WELCOME5-095',
-  'WELCOME5-096', 'WELCOME5-097', 'WELCOME5-098', 'WELCOME5-099', 'WELCOME5-100',
-  'WELCOME5-101', 'WELCOME5-102', 'WELCOME5-103', 'WELCOME5-104', 'WELCOME5-105',
-  'WELCOME5-106', 'WELCOME5-107', 'WELCOME5-108', 'WELCOME5-109', 'WELCOME5-110',
-  'WELCOME5-111', 'WELCOME5-112', 'WELCOME5-113', 'WELCOME5-114', 'WELCOME5-115',
-  'WELCOME5-116', 'WELCOME5-117', 'WELCOME5-118', 'WELCOME5-119', 'WELCOME5-120',
-  'WELCOME5-121', 'WELCOME5-122', 'WELCOME5-123', 'WELCOME5-124', 'WELCOME5-125',
-  'WELCOME5-126', 'WELCOME5-127', 'WELCOME5-128', 'WELCOME5-129', 'WELCOME5-130',
-  'WELCOME5-131', 'WELCOME5-132', 'WELCOME5-133', 'WELCOME5-134', 'WELCOME5-135',
-  'WELCOME5-136', 'WELCOME5-137', 'WELCOME5-138', 'WELCOME5-139', 'WELCOME5-140',
-  'WELCOME5-141', 'WELCOME5-142', 'WELCOME5-143', 'WELCOME5-144', 'WELCOME5-145',
-  'WELCOME5-146', 'WELCOME5-147', 'WELCOME5-148', 'WELCOME5-149', 'WELCOME5-150',
-  'WELCOME5-151', 'WELCOME5-152', 'WELCOME5-153', 'WELCOME5-154', 'WELCOME5-155',
-  'WELCOME5-156', 'WELCOME5-157', 'WELCOME5-158', 'WELCOME5-159', 'WELCOME5-160',
-  'WELCOME5-161', 'WELCOME5-162', 'WELCOME5-163', 'WELCOME5-164', 'WELCOME5-165',
-  'WELCOME5-166', 'WELCOME5-167', 'WELCOME5-168', 'WELCOME5-169', 'WELCOME5-170',
-  'WELCOME5-171', 'WELCOME5-172', 'WELCOME5-173', 'WELCOME5-174', 'WELCOME5-175',
-  'WELCOME5-176', 'WELCOME5-177', 'WELCOME5-178', 'WELCOME5-179', 'WELCOME5-180',
-  'WELCOME5-181', 'WELCOME5-182', 'WELCOME5-183', 'WELCOME5-184', 'WELCOME5-185',
-  'WELCOME5-186', 'WELCOME5-187', 'WELCOME5-188', 'WELCOME5-189', 'WELCOME5-190',
-  'WELCOME5-191', 'WELCOME5-192', 'WELCOME5-193', 'WELCOME5-194', 'WELCOME5-195',
-  'WELCOME5-196', 'WELCOME5-197', 'WELCOME5-198', 'WELCOME5-199', 'WELCOME5-200',
-  'WELCOME5-201', 'WELCOME5-202', 'WELCOME5-203', 'WELCOME5-204', 'WELCOME5-205',
-  'WELCOME5-206', 'WELCOME5-207', 'WELCOME5-208', 'WELCOME5-209', 'WELCOME5-210',
-  'WELCOME5-211', 'WELCOME5-212', 'WELCOME5-213', 'WELCOME5-214', 'WELCOME5-215',
-  'WELCOME5-216', 'WELCOME5-217', 'WELCOME5-218', 'WELCOME5-219', 'WELCOME5-220',
-  'WELCOME5-221', 'WELCOME5-222', 'WELCOME5-223', 'WELCOME5-224', 'WELCOME5-225',
-  'WELCOME5-226', 'WELCOME5-227', 'WELCOME5-228', 'WELCOME5-229', 'WELCOME5-230',
-  'WELCOME5-231', 'WELCOME5-232', 'WELCOME5-233', 'WELCOME5-234', 'WELCOME5-235',
-  'WELCOME5-236', 'WELCOME5-237', 'WELCOME5-238', 'WELCOME5-239', 'WELCOME5-240',
-  'WELCOME5-241', 'WELCOME5-242', 'WELCOME5-243', 'WELCOME5-244', 'WELCOME5-245',
-  'WELCOME5-246', 'WELCOME5-247', 'WELCOME5-248', 'WELCOME5-249', 'WELCOME5-250',
-  'WELCOME5-251', 'WELCOME5-252', 'WELCOME5-253', 'WELCOME5-254', 'WELCOME5-255',
-  'WELCOME5-256', 'WELCOME5-257', 'WELCOME5-258', 'WELCOME5-259', 'WELCOME5-260',
-  'WELCOME5-261', 'WELCOME5-262', 'WELCOME5-263', 'WELCOME5-264', 'WELCOME5-265',
-  'WELCOME5-266', 'WELCOME5-267', 'WELCOME5-268', 'WELCOME5-269', 'WELCOME5-270',
-  'WELCOME5-271', 'WELCOME5-272', 'WELCOME5-273', 'WELCOME5-274', 'WELCOME5-275',
-  'WELCOME5-276', 'WELCOME5-277', 'WELCOME5-278', 'WELCOME5-279', 'WELCOME5-280',
-  'WELCOME5-281', 'WELCOME5-282', 'WELCOME5-283', 'WELCOME5-284', 'WELCOME5-285',
-  'WELCOME5-286', 'WELCOME5-287', 'WELCOME5-288', 'WELCOME5-289', 'WELCOME5-290',
-  'WELCOME5-291', 'WELCOME5-292', 'WELCOME5-293', 'WELCOME5-294', 'WELCOME5-295',
-  'WELCOME5-296', 'WELCOME5-297', 'WELCOME5-298', 'WELCOME5-299', 'WELCOME5-300'
-];
+// ABANDONED CHECKOUT - Email 2
+const CHECKOUT_EMAIL2_CODES = ['SIPSY5-968203B3','SIPSY5-87437D3D','SIPSY5-1EB9C0EB','SIPSY5-54DF3A4D','SIPSY5-D7FA0CCB','SIPSY5-FBC79630','SIPSY5-9CD8D31F','SIPSY5-8CDBC3C6','SIPSY5-FF7805A2','SIPSY5-280E52EE','SIPSY5-B3A01A02','SIPSY5-55E55B7E','SIPSY5-06B69EA4','SIPSY5-AE2385A4','SIPSY5-7FFAE5EE','SIPSY5-B23974C3','SIPSY5-211E65F2','SIPSY5-D784BEC9','SIPSY5-652C0774','SIPSY5-25FD4711','SIPSY5-083D752F','SIPSY5-52B356E3','SIPSY5-8A5811A1','SIPSY5-F6BC8118','SIPSY5-D1CA3377','SIPSY5-DF297709','SIPSY5-873F17F1','SIPSY5-48CA7C79','SIPSY5-D8662840','SIPSY5-9ECB294B','SIPSY5-4656468A','SIPSY5-F4B65EBC','SIPSY5-8A40DCFC','SIPSY5-E0505FAB','SIPSY5-EB9A7FC9','SIPSY5-571C6309','SIPSY5-FC026205','SIPSY5-EC764741','SIPSY5-784CC9A0','SIPSY5-BDECFD40','SIPSY5-6C4D3439','SIPSY5-C52908DA','SIPSY5-E0B1BA91','SIPSY5-55995EC3','SIPSY5-4F07B2A0','SIPSY5-B66CC67D','SIPSY5-25EA1A84','SIPSY5-3B8A77FC','SIPSY5-BC75D810','SIPSY5-13AB8B3A','SIPSY5-48058DFE'];
 
-// In-memory store
+// ABANDONED CHECKOUT - Email 3
+const CHECKOUT_EMAIL3_CODES = ['SIPSY5-899657E4','SIPSY5-D70D6216','SIPSY5-3AC9DD35','SIPSY5-63F644C3','SIPSY5-6901AD02','SIPSY5-734F2531','SIPSY5-07115E57','SIPSY5-5812D368','SIPSY5-E3C74443','SIPSY5-599AB50D','SIPSY5-F3378463','SIPSY5-ABB08B66'];
+
+// EMAIL SIGNUP - 300 codes with 7-day expiration
+const SIGNUP_CODES = ['SIPSY5-BC709B82','SIPSY5-43B4DCF9','SIPSY5-139C9354','SIPSY5-2DF5B711','SIPSY5-E1431419','SIPSY5-69565454','SIPSY5-464E49C0','SIPSY5-B18B568E','SIPSY5-F623ED5F','SIPSY5-F6E1694D','SIPSY5-78F1444C','SIPSY5-E3F72746','SIPSY5-A7D51E1A','SIPSY5-6CA04F44','SIPSY5-131BFEF2','SIPSY5-5BE5C6AF','SIPSY5-EEF46279','SIPSY5-80814F3D','SIPSY5-96ED48DD','SIPSY5-DF034CCE','SIPSY5-FAA1C61E','SIPSY5-B8E58D33','SIPSY5-AD7293C1','SIPSY5-1810FA72','SIPSY5-6592AD93','SIPSY5-27EA9BE0','SIPSY5-230F9DD8','SIPSY5-D0E881B5','SIPSY5-E910B716','SIPSY5-94C92C3F','SIPSY5-2525EACC','SIPSY5-72D2A161','SIPSY5-FAE7E0C5','SIPSY5-285E75E9','SIPSY5-A09A2579','SIPSY5-91675D64','SIPSY5-0172C520','SIPSY5-0C56157D','SIPSY5-2FFBD864','SIPSY5-73170EA7','SIPSY5-D923019A','SIPSY5-47014B0D','SIPSY5-CD61E729','SIPSY5-479DCC7D','SIPSY5-35F95477','SIPSY5-A774B428','SIPSY5-5601CE5B','SIPSY5-F7B2F179','SIPSY5-7B63B176','SIPSY5-6D7DEE73','SIPSY5-869E25CB','SIPSY5-DF657D6D','SIPSY5-39975995','SIPSY5-C8AD097C','SIPSY5-B4FC86C0','SIPSY5-531C3466','SIPSY5-F1888BC1','SIPSY5-54F0B33F','SIPSY5-863E7FDC','SIPSY5-7A2BCA92','SIPSY5-6880D5EF','SIPSY5-0BF9F2DC','SIPSY5-EF546266','SIPSY5-1F21CE35','SIPSY5-4FDBC3F9','SIPSY5-C18B4C67','SIPSY5-05FDB7E7','SIPSY5-F7119D71','SIPSY5-94FC0656','SIPSY5-87E592A2','SIPSY5-92BD02D3','SIPSY5-31E64D14','SIPSY5-2398A973','SIPSY5-F0A43DE7','SIPSY5-358019C3','SIPSY5-C307EA7B','SIPSY5-041F17C5','SIPSY5-E1C821D0','SIPSY5-D66D7BCE','SIPSY5-AE3C564E','SIPSY5-D42B590D','SIPSY5-CF7637CD','SIPSY5-BA9B1510','SIPSY5-64BAE038','SIPSY5-79DC2F99','SIPSY5-A332F97F','SIPSY5-6AB30874','SIPSY5-E33B17FA','SIPSY5-4A262D8C','SIPSY5-0F243251','SIPSY5-21A26E82','SIPSY5-F3038DC7','SIPSY5-E1EA61C7','SIPSY5-05F511C8','SIPSY5-1D1BE025','SIPSY5-24D91BC5','SIPSY5-8FF205B2','SIPSY5-C3EFF7D3','SIPSY5-A1F059E2','SIPSY5-32EDC21F','SIPSY5-0C9C9ADC','SIPSY5-D69A2196','SIPSY5-8D160B7D','SIPSY5-B29AAF4E','SIPSY5-C2EC9AC4','SIPSY5-59536901','SIPSY5-F0B5588A','SIPSY5-65BFB83D','SIPSY5-91C997BF','SIPSY5-2882741E','SIPSY5-0C0EA7D9','SIPSY5-31456D0C','SIPSY5-AD3F4F6D','SIPSY5-EEA9F80E','SIPSY5-287C1981','SIPSY5-38C0A330','SIPSY5-BA581B92','SIPSY5-F5CAE466','SIPSY5-DEC79341','SIPSY5-9401FB10','SIPSY5-B18F4CF1','SIPSY5-C1EC6045','SIPSY5-DC53F554','SIPSY5-B560D734','SIPSY5-6F123CB9','SIPSY5-CFD1D3CA','SIPSY5-3254F3FC','SIPSY5-804F24AD','SIPSY5-4E8BEA8D','SIPSY5-C5ACFBD9','SIPSY5-363A97A6','SIPSY5-1C0BE5DC','SIPSY5-84CB21E4','SIPSY5-FE9C2AA2','SIPSY5-A3642C27','SIPSY5-4817998F','SIPSY5-2970C31C','SIPSY5-577528D2','SIPSY5-6B375656','SIPSY5-F7651C0C','SIPSY5-9177B940','SIPSY5-BC2CB3FD','SIPSY5-47C4C971','SIPSY5-6E1766B9','SIPSY5-C7069819','SIPSY5-0A7ECAB7','SIPSY5-B702504C','SIPSY5-47DB2481','SIPSY5-FE9DD827','SIPSY5-1CB0C954','SIPSY5-3E5110CF','SIPSY5-B8B80700','SIPSY5-D147AE95','SIPSY5-FB494811','SIPSY5-8DF01F4A','SIPSY5-9F3FB7A1','SIPSY5-7D9B52E7','SIPSY5-C62B3142','SIPSY5-9949F639','SIPSY5-208F693D','SIPSY5-AA0A0A02','SIPSY5-955E730E','SIPSY5-9A60A0E9','SIPSY5-BE36E943','SIPSY5-F5AA1E96','SIPSY5-39636ED7','SIPSY5-961FB46B','SIPSY5-862FDFD3','SIPSY5-E46793FD','SIPSY5-4DD22C3D','SIPSY5-30C6990A','SIPSY5-78AA8955','SIPSY5-46E16081','SIPSY5-3B739A32','SIPSY5-59C95369','SIPSY5-810D6ECE','SIPSY5-22ED3A9D','SIPSY5-1B745708','SIPSY5-AB087622','SIPSY5-D137B70E','SIPSY5-3A511049','SIPSY5-3202B23A','SIPSY5-26CF0D8F','SIPSY5-1B6953D3','SIPSY5-F8178899','SIPSY5-2D9DEF8F','SIPSY5-343964C1','SIPSY5-3E0B32EE','SIPSY5-1D70B2CB','SIPSY5-724C9726','SIPSY5-5EC779FC','SIPSY5-5FBA9164','SIPSY5-FA4EB130','SIPSY5-4EB5F48B','SIPSY5-5A7B275C','SIPSY5-E96AA3E0','SIPSY5-845F8853','SIPSY5-14C42DA3','SIPSY5-54B35137','SIPSY5-E699ABE0','SIPSY5-22D51BD7','SIPSY5-E34F1AE2','SIPSY5-92B7974E','SIPSY5-0EA24729','SIPSY5-844089B7','SIPSY5-8E5FC4D5','SIPSY5-90FBDB4E','SIPSY5-6C42A2F3','SIPSY5-9FB32F0F','SIPSY5-1AA6D204','SIPSY5-6845E639','SIPSY5-6F809CFD','SIPSY5-A3B19F94','SIPSY5-C02FB5F2','SIPSY5-45098EF1','SIPSY5-5AB6A091','SIPSY5-E607388F','SIPSY5-E8CE6224','SIPSY5-AAA15C95','SIPSY5-7369822F','SIPSY5-E99EA1D7','SIPSY5-79588DD3','SIPSY5-601B48B2','SIPSY5-73363F93','SIPSY5-4555352F','SIPSY5-F4C12F58','SIPSY5-D4410E72','SIPSY5-C9CB35D8','SIPSY5-51EB7CB2','SIPSY5-8DE4C76B','SIPSY5-428D98F2','SIPSY5-CD20A887','SIPSY5-D78C3170','SIPSY5-8FA4E3B0','SIPSY5-3C592E93','SIPSY5-95918221','SIPSY5-624369BB','SIPSY5-5092601E','SIPSY5-59F0506A','SIPSY5-4FA9CA7C','SIPSY5-E49BA146','SIPSY5-0212FFBC','SIPSY5-01090004','SIPSY5-1DD1D45E','SIPSY5-679CB22C','SIPSY5-4F76DF7C','SIPSY5-44B81A9F','SIPSY5-D06B40EB','SIPSY5-179AF1B8','SIPSY5-144301A2','SIPSY5-416A03A1','SIPSY5-808CE6C2','SIPSY5-6629ACED','SIPSY5-265E2455','SIPSY5-E38812AB','SIPSY5-BE5ACC6D','SIPSY5-0E849BE8','SIPSY5-33A5E12B','SIPSY5-3D93D368','SIPSY5-CE2ADD0D','SIPSY5-8F4A00BC','SIPSY5-7E7A809F','SIPSY5-39071C69','SIPSY5-46F74E46','SIPSY5-15FC5CA5','SIPSY5-9FDFBF0D','SIPSY5-A4709CE4','SIPSY5-83E51989','SIPSY5-8D28B028','SIPSY5-17EEB8C5','SIPSY5-34FDCAB4','SIPSY5-5E7BC17D','SIPSY5-BEB4D72F','SIPSY5-F743E7EC','SIPSY5-70183109','SIPSY5-28CEE90F','SIPSY5-B1DD13FE','SIPSY5-B0710393','SIPSY5-1A61A213','SIPSY5-FE482DB5','SIPSY5-B47F668F','SIPSY5-B4C52495','SIPSY5-E53A54AB','SIPSY5-1854EE60','SIPSY5-D0D3F375','SIPSY5-2144FE9B','SIPSY5-51B5EFA0','SIPSY5-61629495','SIPSY5-06C3E43A','SIPSY5-E85F1889','SIPSY5-A6F79284','SIPSY5-01E8511A','SIPSY5-322BFAA7','SIPSY5-1F8440FD','SIPSY5-6D4A60AE','SIPSY5-B71CD3D5','SIPSY5-24B130EC','SIPSY5-BF750F29','SIPSY5-D8AFEA02','SIPSY5-CF5B81E2'];
+
 let codeAssignments = {};
 let codeUsage = {};
 
-/**
- * GET /api/assign-code?email=customer@example.com&type=email2
- */
-app.get('/api/assign-code', async (req, res) => {
+function getExpirationTime(type) {
+  if (type === 'signup') {
+    return 7 * 24 * 60 * 60 * 1000;
+  } else {
+    return 48 * 60 * 60 * 1000;
+  }
+}
+
+app.get('/', (req, res) => {
+  res.json({ status: 'ok', service: 'Sipsy Cart Recovery API' });
+});
+
+app.get('/api/assign-code', (req, res) => {
   try {
-    let { email, type = 'email2' } = req.query;
-
-    if (!email) {
-      return res.status(400).json({ error: 'Email parameter required' });
-    }
-
-    // Normalize type: map checkout_email2/3 to email2/3
-    if (type === 'checkout_email2') {
-      type = 'email2';
-    } else if (type === 'checkout_email3') {
-      type = 'email3';
-    }
-
-    if (type !== 'email2' && type !== 'email3' && type !== 'signup') {
+    const { email, type = 'email2' } = req.query;
+    if (!email) return res.status(400).json({ error: 'Email required' });
+    if (!['email2', 'email3', 'checkout_email2', 'checkout_email3', 'signup'].includes(type)) {
       return res.status(400).json({ error: 'Type must be email2, email3, checkout_email2, checkout_email3, or signup' });
     }
 
     const key = `${email}_${type}`;
     if (codeAssignments[key]) {
-      const assignment = codeAssignments[key];
-      const expiresAt = new Date(assignment.expiresAt);
-      
+      const expiresAt = new Date(codeAssignments[key].expiresAt);
       if (expiresAt > new Date()) {
-        return res.status(200).json({
-          code: assignment.code,
-          expiresAt: assignment.expiresAt,
-          message: 'Previously assigned code (still valid)',
-          isNew: false
-        });
+        return res.json({ code: codeAssignments[key].code, expiresAt: codeAssignments[key].expiresAt, isNew: false });
       } else {
         delete codeAssignments[key];
       }
+    }
+
+    let batch;
+    if (type === 'email2') batch = EMAIL2_CODES;
+    else if (type === 'email3') batch = EMAIL3_CODES;
+    else if (type === 'checkout_email2') batch = CHECKOUT_EMAIL2_CODES;
+    else if (type === 'checkout_email3') batch = CHECKOUT_EMAIL3_CODES;
+    else if (type === 'signup') batch = SIGNUP_CODES;
+
+    let availableCode = null;
+    for (const code of batch) {
+      if (!codeUsage[code] || !codeUsage[code].used) {
+        availableCode = code;
+        break;
+      }
+    }
+
+    if (!availableCode) {
+      return res.status(400).json({ error: `No available codes in ${type} batch` });
+    }
+
+    const now = new Date();
+    const expirationMs = getExpirationTime(type);
+    const expiresAt = new Date(now.getTime() + expirationMs);
+
+    codeAssignments[key] = { code: availableCode, email, type, assignedAt: now.toISOString(), expiresAt: expiresAt.toISOString() };
+    codeUsage[availableCode] = { assignedAt: now.toISOString(), email, type, used: false };
+
+    res.json({ code: availableCode, expiresAt: expiresAt.toISOString(), isNew: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/stats', (req, res) => {
+  const email2Used = Object.values(codeUsage).filter(c => c.type === 'email2' && c.used).length;
+  const email3Used = Object.values(codeUsage).filter(c => c.type === 'email3' && c.used).length;
+  const checkout2Used = Object.values(codeUsage).filter(c => c.type === 'checkout_email2' && c.used).length;
+  const checkout3Used = Object.values(codeUsage).filter(c => c.type === 'checkout_email3' && c.used).length;
+  const signupUsed = Object.values(codeUsage).filter(c => c.type === 'signup' && c.used).length;
+  
+  res.json({
+    abandoned_cart: {
+      email2: { total: EMAIL2_CODES.length, used: email2Used, available: EMAIL2_CODES.length - email2Used },
+      email3: { total: EMAIL3_CODES.length, used: email3Used, available: EMAIL3_CODES.length - email3Used }
+    },
+    abandoned_checkout: {
+      email2: { total: CHECKOUT_EMAIL2_CODES.length, used: checkout2Used, available: CHECKOUT_EMAIL2_CODES.length - checkout2Used },
+      email3: { total: CHECKOUT_EMAIL3_CODES.length, used: checkout3Used, available: CHECKOUT_EMAIL3_CODES.length - checkout3Used }
+    },
+    email_signup: {
+      total: SIGNUP_CODES.length,
+      used: signupUsed,
+      available: SIGNUP_CODES.length - signupUsed
+    }
+  });
+});
+
+app.post('/api/generate-codes', async (req, res) => {
+  try {
+    const { type = 'email2', count = 30 } = req.body;
+
+    if (!['email2', 'email3', 'signup'].includes(type)) {
+      return res.status(400).json({ 
+        error: 'Type must be email2, email3, or signup' 
+      });
+    }
+
+    if (count < 1 || count > 300) {
+      return res.status(400).json({ 
+        error: 'Count must be between 1 and 300' 
+      });
+    }
+
+    function randomCode() {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+      let code = '';
+      for (let i = 0; i < 8; i++) {
+        code += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return 'SIPSY5-' + code;
     }
 
     let batch;
@@ -178,233 +143,37 @@ app.get('/api/assign-code', async (req, res) => {
     } else {
       batch = SIGNUP_CODES;
     }
-    
-    let availableCode = null;
-    for (const code of batch) {
-      if (!codeUsage[code]) {
-        availableCode = code;
-        break;
+
+    const newCodes = [];
+    const existingCodes = new Set(batch);
+
+    for (let i = 0; i < count; i++) {
+      let code;
+      let attempts = 0;
+      
+      do {
+        code = randomCode();
+        attempts++;
+      } while (existingCodes.has(code) && attempts < 10);
+
+      if (!existingCodes.has(code)) {
+        batch.push(code);
+        existingCodes.add(code);
+        newCodes.push(code);
       }
     }
 
-    if (!availableCode) {
-      return res.status(400).json({
-        error: `No available codes in ${type} batch`,
-        codesRemaining: batch.length,
-        codesUsed: Object.keys(codeUsage).filter(c => batch.includes(c)).length
-      });
-    }
-
-    const now = new Date();
-    // Signup codes expire in 7 days, cart/checkout expire in 48 hours
-    const expirationMs = type === 'signup' 
-      ? 7 * 24 * 60 * 60 * 1000  // 7 days
-      : 48 * 60 * 60 * 1000;     // 48 hours
-    const expiresAt = new Date(now.getTime() + expirationMs);
-
-    codeAssignments[key] = {
-      code: availableCode,
-      email: email,
-      type: type,
-      assignedAt: now.toISOString(),
-      expiresAt: expiresAt.toISOString()
-    };
-
-    codeUsage[availableCode] = {
-      assignedAt: now.toISOString(),
-      email: email,
-      type: type,
-      used: false
-    };
-
-    return res.status(200).json({
-      code: availableCode,
-      expiresAt: expiresAt.toISOString(),
-      message: 'Code assigned successfully',
-      isNew: true
-    });
-
-  } catch (error) {
-    console.error('Error:', error);
-    return res.status(500).json({ error: error.message });
-  }
-});
-
-/**
- * POST /api/mark-used?code=SIPSY5-XXXXX
- */
-app.post('/api/mark-used', async (req, res) => {
-  try {
-    const { code } = req.query;
-
-    if (!code) {
-      return res.status(400).json({ error: 'Code parameter required' });
-    }
-
-    if (!codeUsage[code]) {
-      return res.status(404).json({ error: 'Code not found' });
-    }
-
-    codeUsage[code].used = true;
-    codeUsage[code].usedAt = new Date().toISOString();
-
-    return res.status(200).json({
-      message: 'Code marked as used',
-      code: code
-    });
-
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
-  }
-});
-
-/**
- * GET /api/stats
- */
-app.get('/api/stats', async (req, res) => {
-  const totalEmail2 = EMAIL2_CODES.length;
-  const totalEmail3 = EMAIL3_CODES.length;
-  const email2Used = Object.values(codeUsage).filter(c => c.type === 'email2' && c.used).length;
-  const email3Used = Object.values(codeUsage).filter(c => c.type === 'email3' && c.used).length;
-
-  return res.status(200).json({
-    email2: {
-      total: totalEmail2,
-      assigned: Object.values(codeAssignments).filter(c => c.type === 'email2').length,
-      used: email2Used,
-      available: totalEmail2 - email2Used
-    },
-    email3: {
-      total: totalEmail3,
-      assigned: Object.values(codeAssignments).filter(c => c.type === 'email3').length,
-      used: email3Used,
-      available: totalEmail3 - email3Used
-    },
-    totalAssignments: Object.keys(codeAssignments).length
-  });
-});
-
-/**
- * GET /health
- * Health check endpoint for Shopify app verification
- */
-app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'ok', message: 'Sipsy Recovery API is running' });
-});
-
-/**
- * POST /api/update-preferences
- * Update customer preferences and apply Shopify tags
- */
-app.post('/api/update-preferences', async (req, res) => {
-  try {
-    const { email, interests } = req.body;
-
-    if (!email || !Array.isArray(interests)) {
-      return res.status(400).json({ 
-        error: 'Email and interests array required',
-        example: { email: 'user@example.com', interests: ['tequila', 'sales'] }
-      });
-    }
-
-    // Shopify API credentials (from environment variables)
-    const SHOPIFY_STORE = process.env.SHOPIFY_STORE;
-    const SHOPIFY_TOKEN = process.env.SHOPIFY_TOKEN;
-
-    if (!SHOPIFY_STORE || !SHOPIFY_TOKEN) {
-      return res.status(500).json({ 
-        error: 'Shopify credentials not configured in environment variables',
-        required: ['SHOPIFY_STORE', 'SHOPIFY_TOKEN']
-      });
-    }
-
-    // Step 1: Find customer by email
-    const searchUrl = `https://${SHOPIFY_STORE}.myshopify.com/admin/api/2024-01/customers/search.json?query=email:${encodeURIComponent(email)}`;
-
-    const searchResponse = await fetch(searchUrl, {
-      method: 'GET',
-      headers: {
-        'X-Shopify-Access-Token': SHOPIFY_TOKEN,
-        'Content-Type': 'application/json'
-      }
-    });
-
-    if (!searchResponse.ok) {
-      throw new Error(`Shopify search failed: ${searchResponse.statusText}`);
-    }
-
-    const searchData = await searchResponse.json();
-    
-    if (!searchData.customers || searchData.customers.length === 0) {
-      return res.status(404).json({ 
-        error: 'Customer not found',
-        email: email
-      });
-    }
-
-    const customer = searchData.customers[0];
-    const customerId = customer.id;
-
-    // Step 2: Map interests to Shopify tags
-    const interestTagMap = {
-      'new-products': 'Pref-New-Products',
-      'sales': 'Pref-Sales',
-      'tequila': 'Pref-Tequila',
-      'whiskey': 'Pref-Whiskey',
-      'wine': 'Pref-Wine',
-      'champagne': 'Pref-Champagne',
-      'sustainable': 'Pref-Sustainable',
-      'additive-free': 'Pref-Additive-Free',
-      'non-alcoholic': 'Pref-Non-Alcoholic',
-      'cocktail-recipes': 'Pref-Cocktail-Recipes'
-    };
-
-    const newTags = interests.map(interest => interestTagMap[interest]).filter(Boolean);
-    newTags.push('Preference-Collected');
-
-    // Step 3: Update customer tags
-    const updateUrl = `https://${SHOPIFY_STORE}.myshopify.com/admin/api/2024-01/customers/${customerId}.json`;
-
-    const updateResponse = await fetch(updateUrl, {
-      method: 'PUT',
-      headers: {
-        'X-Shopify-Access-Token': SHOPIFY_TOKEN,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        customer: {
-          id: customerId,
-          tags: newTags.join(', ')
-        }
-      })
-    });
-
-    if (!updateResponse.ok) {
-      throw new Error(`Shopify update failed: ${updateResponse.statusText}`);
-    }
-
-    const updateData = await updateResponse.json();
-
-    // Email is now sent via Shopify Workflow (triggered by Preference-Collected tag)
-    // No longer sending email from API
-
-    return res.status(200).json({
+    return res.status(201).json({
       success: true,
-      message: 'Preferences saved and customer tagged. Shopify workflow will send thank you email.',
-      customer: {
-        id: customerId,
-        email: email,
-        name: customer.first_name,
-        tags: updateData.customer.tags
-      },
-      interests: interests,
-      discountCode: 'THANKYOU5',
-      emailVia: 'Shopify Workflow (triggered by Preference-Collected tag)',
+      type: type,
+      codesGenerated: newCodes.length,
+      totalInBatch: batch.length,
+      message: `Generated ${newCodes.length} new codes for ${type} batch`,
       timestamp: new Date().toISOString()
     });
 
   } catch (error) {
-    console.error('Error updating preferences:', error);
+    console.error('Error generating codes:', error);
     return res.status(500).json({ 
       error: error.message,
       timestamp: new Date().toISOString()
@@ -412,21 +181,4 @@ app.post('/api/update-preferences', async (req, res) => {
   }
 });
 
-// Health check
-app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'healthy', timestamp: new Date().toISOString() });
-});
-
-// Start server
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`✅ Sipsy Recovery API running on port ${PORT}`);
-  console.log(`Endpoints:`);
-  console.log(`  GET  /api/assign-code?email=...&type=email2`);
-  console.log(`  POST /api/mark-used?code=...`);
-  console.log(`  GET  /api/stats`);
-  console.log(`  POST /api/update-preferences`);
-  console.log(`  GET  /health`);
-});
-
-module.exports = app;
+app.listen(PORT, () => console.log(`API running on ${PORT}`));
