@@ -47,8 +47,8 @@ async function createDiscountInShopify(code) {
           target_type: 'line_item',
           target_selection: 'all',
           allocation_method: 'across',
-          value_type: 'percentage',
-          value: -5.0,
+          value_type: 'fixed_amount',
+          value: '-5.00',
           usage_limit: 1,
           customer_selection: 'all',
           starts_at: new Date().toISOString()
