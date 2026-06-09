@@ -11,7 +11,7 @@ app.use(express.json());
 // Shopify API Config (uses env var, NOT hardcoded)
 const STORE = 'by0iv9-hr';
 const API_VERSION = '2024-01';
-const RECOVERY_RULE_ID = '1667947102504'; // Email2 + Email3 shared
+const RECOVERY_RULE_ID = '1667976233256'; // Email2 + Email3 shared
 
 // In-memory store for tracking assignments
 let codeAssignments = {};
